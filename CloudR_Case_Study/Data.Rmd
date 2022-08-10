@@ -1,0 +1,105 @@
+---
+title: "Looking at the Data"
+author: "Camille Vasquez"
+date: '2022-08-08'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+## Case Study Questions:
+* What are some trends in smart device usage?
+* How could these trends apply to Bellabeat customers?
+* How could these trends help influence Bellabeat marketing strategy?
+
+
+## How many different Participates in each set?
+What Variables are we working with in this project?
+```{r}
+cat("Partipates for Daily Activity:", n_distinct(daily_activity$Id),"\n")
+cat("Partipates for Daily Steps:", n_distinct(daily_steps$Id),"\n") 
+cat("Partipates for Daily Calories", n_distinct(daily_calories$Id),"\n") 
+cat("Partipates for Daily Intensities:",n_distinct(daily_intensities$Id),"\n") 
+```
+
+## Looking at the dataframe Daily Activity
+
+```{r}
+daily_activity %>%  
+  select(TotalSteps,
+         TotalDistance,
+         SedentaryMinutes) %>%
+  summary()
+```
+Looking at the user's average, we can see the realtionship between total steps, 
+total distance, and sedentary minutes. This will give us an idea of what our 
+main focus should be on if we wish to find trends in the data and use the trends
+to putt more users in. 
+## Searching for Trends in the Dataframe "Daily Steps"
+Since we are looking for trends in the data lets look into the average for 
+each user.
+Using the dataframe daily_steps, the graph below demonstrates the usage of the 
+device depending on the day. With the data in the first graph many of the users 
+fall below the 10,000 step mark. Since in fitness, the goal is to make at least 
+10,000 steps a day, it would be a ideal marking strategy to either remind the 
+users or have the users set a goal for themselves for motivation. 
+
+```{r}
+daily_steps %>%  
+  select(ActivityDay,
+         StepTotal) %>%
+  summary()
+```
+
+We can see from the summary of our data frame that our mean is an average of 
+7,638 steps a day. Which falls below the recommended average.
+We may also varify by looking at a visual represenation of
+
+```{r}
+#ggplot(data=daily_steps, aes(x=ActivityDay,y=StepTotal))+ geom_point() 
+#+ geom_point(aes(x=10000))
+#ggplot(data=daily_steps, aes(x=ActivityDay,y=StepTotal))+ geom_point() 
+#+ geom_smooth(method="gam", 
+#formula = y ~s(x))+facet_wrap(~Id)+labs(title="Activity Day vs Steps Total",
+#       caption=paste0("Data from: April 2016", " to May 2016"),
+#       x="Activity Day",
+#       y="Steps Total")
+daily_steps%>%
+  group_by(Id)%>%
+  #mutate(Id = fct_reorder(Id, 1:33)) %>%
+  ggplot(.,aes(x = Id,y = StepTotal)) + geom_bar(stat = "identity")  
+#+ scale_x_discrete(limits=daily_steps$Id)
+```
+For this graph, I know I need to fix the columns for "Id" and change them to 
+numeral values (values of the rows) or change the axis. 
+Otherwise, we can see the total steps of our users above. 
+
+## Comparing Sedentary Minutes to Total Steps
+Sedentary minutes refers to the day's non-excerises like siting down or standing 
+up once a while. We want to see if there is a trend between in the activty. 
+
+```{r}
+ggplot(data=daily_activity, aes(x=SedentaryMinutes, y=TotalSteps)) + geom_point() + geom_smooth(method="gam", formula = y ~s(x))
+```
+Using the graph above, we can see that the trend is a bit harder to see but the 
+users who send more time sitting do not accomplish their 10,000 goal. 
+
+## Total Steps verus Total Calories 
+Let us look at the relationship between total steps taken and calories burned 
+througout the day. 
+```{r}
+ggplot(data=calories_and_steps, aes(x=StepTotal, y=Calories)) + geom_point() 
++ geom_smooth(method="gam", formula = y ~s(x))
+```
+Clearly we see a relationship between steps taken and calories in the day. 
+We can use this to our advantage and explain to our stakeholders how we can 
+market towards new users.
+
+## Conclusion 
+We have been able to show some relationships in the data to come to a 
+data-driven-decision on how the marketing team should plan their next approach. 
+It may be beneficial to market towards customers looking to track their steps
+throughout the day and show how it can lead to burning more calories. Another 
+idea is how the user who more than likely have office jobs and excessive amount 
+of daily sedentary minutes are still able to reach a 10,000 steps goal.
